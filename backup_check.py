@@ -62,6 +62,8 @@ def main(argv=None):
     parser.add_argument('command', choices=['snapshot', 'verify'])
     parser.add_argument('directory', type=Path)
     parser.add_argument('manifest', type=Path)
+    parser.add_argument('--format', choices=['json', 'text'], default='json',
+                        help='Verification report format (default: json)')
     args = parser.parse_args(argv)
     try:
         root, manifest = args.directory.resolve(), args.manifest.resolve()
@@ -76,7 +78,16 @@ def main(argv=None):
             print('Recorded {} files'.format(len(data['files'])))
             return 0
         report = compare(load_manifest(args.manifest), scan(args.directory))
-        print(json.dumps(report, indent=2))
+        if args.format == 'json':
+            print(json.dumps(report, indent=2))
+        else:
+            print('Backup verification report')
+            print('Unchanged files: {}'.format(report['unchanged']))
+            for category in ('changed', 'missing', 'unexpected'):
+                print('{}: {}'.format(category.title(), len(report[category])))
+                for name in report[category]:
+                    # Escape control characters so filenames cannot forge report lines.
+                    print('  ' + json.dumps(name, ensure_ascii=False))
         return int(any(report[key] for key in ('missing', 'unexpected', 'changed')))
     except (OSError, ValueError) as error:
         print('Error: ' + str(error), file=sys.stderr)

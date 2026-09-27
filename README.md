@@ -18,6 +18,16 @@ The first command creates a baseline. The second prints a JSON report with one u
 
 Exit codes: `0` means success or no differences, `1` means differences found, and `2` means input or filesystem errors. Existing baselines cannot be overwritten. Store the manifest outside the folder being checked.
 
+## Readable report
+
+For an interview demonstration or a quick check, use:
+
+```sh
+python3 backup_check.py verify sample baseline.json --format text
+```
+
+This prints category counts and quoted filenames. JSON remains the default for scripts. Both formats use the same exit codes.
+
 ## IntelliJ IDEA
 
 Open this folder as a project. Use its terminal to run the commands above. A Python editor integration is optional; the program and tests run with the system Python interpreter.
@@ -34,14 +44,13 @@ Open this folder as a project. Use its terminal to run the commands above. A Pyt
 
 ## Portfolio talking points
 
-Implemented a Python command-line utility that compares SHA-256 manifests and produces machine-readable backup verification reports. Added nine automated tests for content changes, malformed manifests, nested Unicode paths, symlinks, and accidental baseline replacement.
+Implemented a Python command-line utility that compares SHA-256 manifests and produces machine-readable backup verification reports. Added ten automated tests for content changes, malformed manifests, nested Unicode paths, symlinks, and accidental baseline replacement.
 
 Interview demo: create a baseline, verify an unchanged copy, edit a file, and explain why a mismatch signals investigation rather than proving malicious activity. Discuss streaming versus reading entire files and why a trusted baseline matters.
 
 ## Next improvements
 
 * Atomic baseline writes for resilience to interrupted writes.
-* Optional human-readable report alongside JSON.
 * Stable snapshot integration and detection of files modified during scanning.
 
 This is an independent personal portfolio project, separate from school and team repositories.

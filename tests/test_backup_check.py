@@ -21,6 +21,20 @@ class BackupTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             return main([command, str(self.root), str(self.manifest)])
 
+    def test_text_report_and_default_json(self):
+        self.assertEqual(self.run_cli('snapshot'), 0)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertEqual(main(['verify', str(self.root), str(self.manifest)]), 0)
+        self.assertEqual(json.loads(output.getvalue())['unchanged'], 1)
+        (self.root / 'note.txt').write_text('changed')
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            result = main(['verify', str(self.root), str(self.manifest), '--format', 'text'])
+        self.assertEqual(result, 1)
+        self.assertIn('Changed: 1', output.getvalue())
+        self.assertIn('"note.txt"', output.getvalue())
+
     def test_known_digest(self):
         self.assertEqual(scan(self.root)['note.txt'], '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
 
